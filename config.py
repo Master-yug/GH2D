@@ -1,13 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun  5 12:55:03 2025
+DISCORD_TOKEN = "DISCORD_TOKEN_HERE"
 
-@author: master-yug
-"""
+GITHUB_REPOS = [
+    "Master-yug/resource-logger",
+    "bugbrekr/ATLAS"
+]
 
-DISCORD_TOKEN = "BOT_TOKEN_GOES_HERE"
-GITHUB_USERS = ["Master-yug", "bugbrekr"]
-GITHUB_REPOS = ["Master-yug/resource-logger", "bugbrekr/ATLAS"]
-DISCORD_CHANNEL_ID = DISCORDCHANNELIDGOESHERE  # Replace with your channel ID
-GITHUB_TOKEN = "GITHUBTOKENGOESHERE"  # Optional, increases rate limits
+GITHUB_USERS = [
+    "Master-yug"
+]
+
+REPO_CHANNELS = {
+    "Master-yug/resource-logger": 1234456789,
+    "bugbrekr/ATLAS": 123456789
+}
+
+GITHUB_TOKEN = "GITHUB_TOKEN_HERE"

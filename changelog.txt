@@ -1,0 +1,26 @@
+PHASE 2:
+*GitHub usernames and repo names are stripped of extra spaces.
+*Prevents 401/404 errors due to malformed repo strings like " Master-yug/resource-logger".
+*GitHub API errors (401, 404) are now caught.
+*The bot logs these without crashing (check_commits() and check_followers() handle None safely).
+*aiohttp.ClientSession() is now created inside an async context (main() function), fixing RuntimeError: no running event loop.
+*REPO_CHANNELS (from config.py) is used to map updates to specific Discord channels.
+*Makes it easier to manage which repo sends updates where.
+*Updates are sent with neat, color-coded Discord embeds.
+*Includes commit author, repo name, and link.
+*@tasks.loop(minutes=2) checks for updates at a regular, stable interval.
+
+-------------------------------------------------------------------------
+Noticable flaws after phase 1:
+*Hardcoded logic
+*Minimal error handling
+*Basic channel mapping (or none)
+*Poor reliability across environments
+
+PHASE 1:
+*Connect to Discord
+*Monitor specific GitHub repositories
+*Fetch and report new commits
+*Fetch and report follower counts
+
+

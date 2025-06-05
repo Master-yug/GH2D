@@ -1,0 +1,81 @@
+Roadmap for the project:
+
+
+Phase 1: Core Bot+Notification System (Done / Polishing)
+
+     Current Functionality:
+
+      = Monitor commits, PRs, followers on GitHub.
+      = Send notifications to a Discord server.
+
+Goals for Phase 1.5:
+
+      = Strip and sanitize repo/user inputs (to avoid 404s).
+      = Add error logging for missing/invalid repos.
+      = Allow separate channels per repository (configurable).
+      = Improve embed formatting for messages (show author, link, avatar).
+
+Phase 2: Interactive Commands & Smart Alerts (Short Term)
+           
+      Discord Slash Commands
+      = /addrepo user/repo — Add repo to monitoring list.
+      = /listrepos — Show currently tracked repos.
+      = /stats repo=user/repo — Show commit count, open PRs, stars.
+
+      Keyword Alerts
+      = Allow users to subscribe to keywords like fix, security, bug.
+      = Notify when matching commits/PRs appear.
+
+      Leaderboard & Roles
+      = Track top contributors across all monitored repos.
+      = Award temporary roles like Top Committer, Bug Squasher.
+
+Phase 3: Dashboard & Data Persistence (Mid-Term)
+         
+      Local Web Dashboard
+     = Build with Flask or FastAPI + Tailwind UI.
+     = Show:
+        List of tracked repos and users
+        Commit/PR activity graphs
+        Follower/star growth
+        Weekly changelog
+
+     Authentication (Optional)
+     = Login with Discord OAuth to view dashboard.
+     =  Admin-only view to manage tracked repos.
+
+       Database Setup
+     = Use SQLite for local persistence (upgradable to PostgreSQL).
+     = Store:
+        Commit history
+        PR data
+        Follower/star counts over time
+
+Phase 4: Real-Time, Webhooks & CI Integration (Advanced)
+        
+        GitHub Webhook Support
+      = Replace polling with GitHub webhooks via Flask server.
+      = Respond instantly to:
+        New commits
+        New PRs
+        Release/tag published
+
+        GitHub Actions/CI Monitor
+      = Show build pass/fail notifications for GitHub Actions.
+      = Highlight failing commits.
+
+Phase 5: Community & Open Source Readiness (Stretch Goal)
+         
+      Bot Customization per Server
+      = Store per-server repo config (allow multiple communities to use the bot).
+      = Admins can set up what to track.
+
+      = Package & Deploy
+      = Turn bot into an installable Python package (pip install gh2discord)
+      = Easy .env based config
+      = Docker support
+
+      Open Source Docs
+      = GitHub README with setup guide
+      = Dashboard + Bot demo screenshots
+      = Contribution guide
