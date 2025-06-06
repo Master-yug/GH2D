@@ -1,26 +1,63 @@
-PHASE 2:
-*GitHub usernames and repo names are stripped of extra spaces.
-*Prevents 401/404 errors due to malformed repo strings like " Master-yug/resource-logger".
-*GitHub API errors (401, 404) are now caught.
-*The bot logs these without crashing (check_commits() and check_followers() handle None safely).
-*aiohttp.ClientSession() is now created inside an async context (main() function), fixing RuntimeError: no running event loop.
-*REPO_CHANNELS (from config.py) is used to map updates to specific Discord channels.
-*Makes it easier to manage which repo sends updates where.
-*Updates are sent with neat, color-coded Discord embeds.
-*Includes commit author, repo name, and link.
-*@tasks.loop(minutes=2) checks for updates at a regular, stable interval.
+Phase 3.4: GitHub Token & Permissions Fixes
+    Functionality:
+       * Reintroduced GITHUB_TOKEN for authenticated GitHub API access.
+       * Fixed permission scopes for OAuth2 bot integration:
+            Required applications.commands, bot, and optionally administrator.
 
--------------------------------------------------------------------------
-Noticable flaws after phase 1:
-*Hardcoded logic
-*Minimal error handling
-*Basic channel mapping (or none)
-*Poor reliability across environments
+    Code Highlights:
+       * Authorization header added to GitHub API requests.
+       * Slash command registration errors resolved by correcting OAuth2 scopes.
 
-PHASE 1:
-*Connect to Discord
-*Monitor specific GitHub repositories
-*Fetch and report new commits
-*Fetch and report follower counts
+Phase 3.3: Refactor for Maintainability
+    Functionality:
+       * Restructured bot to better separate concerns (I/O, logic, Discord handling).
+       * Improved error handling and logging clarity.
+
+    Code Highlights:
+       * Utility functions created for reading/writing JSON files.
+       * Clearer initialization in bot.py using main() and session lifecycle.
+
+Phase 3.2: JSON-Based Dynamic Repo Configuration
+    Functionality:
+       * Replaced static REPO_CHANNELS dictionary with repo_config.json.
+       * Admins can now dynamically add/remove repositories using slash commands.
+
+    Code Highlights:
+       * New file repo_config.json stores repo-channel mappings.
+       * Slash commands implemented:
+            /add_repo repo:owner/repo
+            /remove_repo repo:owner/repo
+            /set_channel repo:owner/repo channel:#channel
+
+Phase 3.1: Admin & Slash Command Setup
+    Functionality:
+       * Introduced slash commands using discord.app_commands.
+       * Verified user permissions using a list of admin Discord user IDs.
+
+    Code Highlights:
+       * Config now stores ADMINS and initial slash command structure.
+       * Introduced CommandTree via discord.Client.
 
 
+Phase 3: Major Restructure & Interactivity
+-------------------------------------------------------------------------------
+Phase 2 : Added GitHub Follower Monitoring
+    Functionality:
+       * Introduced follower tracking for specific GitHub usernames.
+       * Sent follower count changes to all channels monitoring repos.
+
+    Code Highlights:
+       * GitHubMonitor now handles both commits and followers.
+       * Added PROFILE_USERNAMES to config.
+       * Continued using static mappings for repositories.
+-------------------------------------------------------------------------------
+Phase 1: Basic GitHub Commit Monitoring
+    Functionality:
+       * Monitored a fixed set of GitHub repositories.
+       * Detected new commits using the GitHub API.
+       * Sent commit updates to hardcoded Discord channels.
+
+    Code Highlights:
+       * Simple polling loop using discord.ext.tasks.
+       * Repository-channel mapping via static REPO_CHANNELS dictionary.
+       * Used aiohttp session manually in github_monitor.py.
