@@ -7,7 +7,8 @@ class GitHubMonitor:
         self.session = session
         self.last_commit_sha = {}
         self.last_followers = {}
-
+        self.last_pull_requests = {}
+        
     async def fetch_json(self, url):
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
         async with self.session.get(url, headers=headers) as resp:
@@ -54,3 +55,25 @@ class GitHubMonitor:
                     "followers": followers
                 })
         return updates
+     
+    async def check_pull_requests(self):
+        pr_updates = []
+        for repo in self.repos:
+            url = f"https://api.github.com/repos/{repo}/pulls"
+            prs = await self.fetch_json(url)
+            if prs is None or len(prs) == 0:
+                continue
+
+            latest_pr = prs[0]
+            pr_id = latest_pr["id"]
+
+            if self.last_pull_requests.get(repo) != pr_id:
+                self.last_pull_requests[repo] = pr_id
+                pr_updates.append({
+                    "repo": repo,
+                    "title": latest_pr["title"],
+                    "url": latest_pr["html_url"],
+                    "user": latest_pr["user"]["login"]
+                })
+        return pr_updates
+       
