@@ -7,7 +7,14 @@
     <meta http-equiv="refresh" content="30">
 </head>
 <body>
-    <h1>📊 GitHub to Discord Dashboard (Read-Only)</h1>
+    <h1>📊 GitHub to Discord Dashboard (Interactive)</h1>
+    <h2>➕ Add New Repository</h2>
+    <form action="{{ url_for('add_repo') }}" method="post" onsubmit="return confirm('Monitor this repository?');">
+        <label for="repo">GitHub Repo (owner/repo):</label>
+        <input type="text" name="repo" id="repo" required placeholder="e.g. torvalds/linux">
+        <button type="submit">📡 Add Repo</button>
+    </form>
+    
     <p><small>🔄 Auto-refreshing every 30 seconds</small></p>
 
     <h2>📝 Monitored Repositories</h2>
@@ -18,11 +25,16 @@
                 <strong>{{ repo }}</strong> ➝ Channel ID: <code>{{ channel_id }}</code><br>
                 {% set data = monitor_data.get(repo) %}
                 {% if data %}
-                    <strong>Last Commit:</strong> {{ data['last_commit'][:100] }}...<br>
+                    <strong>Last Commit:</strong> {{ data['last_commit'][:100] }}<br>
                     <strong>Updated:</strong> {{ data['timestamp'] }}
                 {% else %}
-                    <em>No commit data yet.</em>
+                    <em>No commit data available</em>
                 {% endif %}
+
+                <form action="{{ url_for('remove_repo') }}" method="post" style="margin-top: 8px;" onsubmit="return confirm('Are you sure you want to remove {{ repo }}?');">
+                    <input type="hidden" name="repo" value="{{ repo }}">
+                    <button type="submit">🗑️ Remove</button>
+                </form>
             </li>
             {% endfor %}
         {% else %}
@@ -42,3 +54,25 @@
     </ul>
 </body>
 </html>
+
+    <h2>👥 GitHub Profiles</h2>
+
+    <form action="{{ url_for('add_profile') }}" method="post" onsubmit="return confirm('Add this GitHub profile?');">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required placeholder="e.g. octocat">
+        <button type="submit">➕ Add Profile</button>
+    </form>
+
+    <ul>
+        {% for user, stats in monitor_data.get("profiles", {}).items() %}
+        <li>
+            <strong>{{ user }}</strong> ➝ Followers: {{ stats.followers }}
+            <form action="{{ url_for('remove_profile') }}" method="post" style="display:inline;" onsubmit="return confirm('Remove {{ user }} from tracking?');">
+                <input type="hidden" name="username" value="{{ user }}">
+                <button type="submit">🗑️ Remove</button>
+            </form>
+        </li>
+        {% else %}
+        <li><em>No profiles monitored.</em></li>
+        {% endfor %}
+    </ul>
