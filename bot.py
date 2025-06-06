@@ -18,6 +18,7 @@ async def on_ready():
 async def check_updates():
     commit_updates = await monitor.check_commits()
     follower_updates = await monitor.check_followers()
+    pr_updates = await monitor.check_pull_requests()  # New line for PRs
 
     for update in commit_updates:
         channel_id = REPO_CHANNELS.get(update["repo"])
@@ -42,6 +43,22 @@ async def check_updates():
                 await channel.send(
                     f"👤 `{update['user']}` now has **{update['followers']}** followers!"
                 )
+    # Pull Request notifications 🆕
+    for pr in pr_updates:
+        channel_id = REPO_CHANNELS.get(pr["repo"])
+        if not channel_id:
+            continue
+        channel = client.get_channel(channel_id)
+        if not channel:
+            continue
+        embed = discord.Embed(
+            title=f"📬 New Pull Request in {pr['repo']}",
+            description=pr["title"],
+            url=pr["url"],
+            color=0x3498db
+        )
+        embed.set_footer(text=f"Author: {pr['author']} → {pr['branch']}")
+        await channel.send(embed=embed)
 
 async def main():
     async with aiohttp.ClientSession() as session:

@@ -1,16 +1,18 @@
 import aiohttp
 import asyncio
-from config import GITHUB_REPOS, GITHUB_USERS, GITHUB_TOKEN
+from config import GITHUB_REPOS, GITHUB_USERS, GITHUB_TOKEN, REPO_CHANNELS
 
 API_BASE = "https://api.github.com"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
 class GitHubMonitor:
     def __init__(self, session):
-        self.session = session
-        self.last_commit = {}
-        self.last_followers = {}
-
+     self.session = session
+     self.repos = list(REPO_CHANNELS.keys())
+     self.last_commits = {}
+     self.last_followers = {}
+     self.last_prs = {}  
+ 
     async def fetch_json(self, url):
         try:
             async with self.session.get(url.strip(), headers=HEADERS) as resp:
@@ -63,3 +65,32 @@ class GitHubMonitor:
                 })
         return updates
 
+    async def check_pull_requests(self):
+        new_prs = []
+
+        for repo in self.repos:
+            repo_clean = repo.strip()
+            url = f"https://api.github.com/repos/{repo_clean}/pulls"
+            async with self.session.get(url) as resp:
+                if resp.status != 200:
+                    print(f"⚠️ GitHub API error {resp.status} for {url}")
+                    continue
+                pulls = await resp.json()
+
+            last_known_sha = self.last_prs.get(repo_clean)
+
+            if pulls:
+                latest = pulls[0]
+                latest_sha = latest["head"]["sha"]
+
+                if latest_sha != last_known_sha:
+                    self.last_prs[repo_clean] = latest_sha
+                    new_prs.append({
+                        "repo": repo_clean,
+                        "title": latest["title"],
+                        "url": latest["html_url"],
+                        "author": latest["user"]["login"],
+                        "branch": latest["base"]["ref"]
+                    })
+
+        return new_prs
