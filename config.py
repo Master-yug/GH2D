@@ -1,17 +1,11 @@
-DISCORD_TOKEN = "DISCORD_TOKEN_HERE"
+DISCORD_TOKEN = "your-discord-bot-token"
 
-GITHUB_REPOS = [
-    "Master-yug/resource-logger",
-    "bugbrekr/ATLAS"
+# List of authorized admin user IDs (as integers)
+ADMIN_IDS = [
+    123456789012345678,  # Replace with actual admin Discord user IDs
+    987654321098765432
 ]
 
-GITHUB_USERS = [
-    "Master-yug"
-]
+GITHUB_TOKEN = "your-github-token"
 
-REPO_CHANNELS = {
-    "Master-yug/resource-logger": 1234456789,
-    "bugbrekr/ATLAS": 123456789
-}
 
-GITHUB_TOKEN = "GITHUB_TOKEN_HERE"
