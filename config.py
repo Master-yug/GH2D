@@ -1,10 +1,10 @@
-# config.py
+DISCORD_TOKEN = "DISCORD_TOKEN_HERE"
+GITHUB_TOKEN = "GITHUB_TOKEN_HERE"
 
-DISCORD_TOKEN = "YOUR_DISCORD_BOT_TOKEN"
-GITHUB_TOKEN = "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
+# List of Discord user IDs that are allowed to use admin commands
+ADMINS = [
+    12345678912345678,  # Replace with actual admin user IDs
+]
 
-# List of Discord user IDs who are admins
-ADMINS = [123456789012345678]  # Replace with your user ID(s)
+REPO_CONFIG_FILE = "repo_config.json"
 
-# Path to JSON file storing repo-channel mappings
-REPO_DATA_FILE = "repo_channels.json"

@@ -1,56 +1,91 @@
-# github_monitor.py
-
 import aiohttp
 import json
+import os
+from datetime import datetime
 
 class GitHubMonitor:
-    def __init__(self, session, github_token):
+    def __init__(self, session, github_token=None):
         self.session = session
-        self.token = github_token
-        self.headers = {
-            "Authorization": f"token {self.token}",
-            "Accept": "application/vnd.github.v3+json"
+        self.github_token = github_token
+        self.cache_file = "data/monitor_cache.json"
+        self.cache = self.load_cache()
+
+    def load_cache(self):
+        if os.path.exists(self.cache_file):
+            with open(self.cache_file, "r") as f:
+                return json.load(f)
+        return {}
+
+    def save_cache(self):
+        os.makedirs("data", exist_ok=True)
+        with open(self.cache_file, "w") as f:
+            json.dump(self.cache, f, indent=4)
+
+    async def fetch_json(self, url):
+        headers = {
+            "Accept": "application/vnd.github+json"
         }
-        self.last_commit_shas = {}
-        self.last_followers = {}
+        if self.github_token:
+            headers["Authorization"] = f"Bearer {self.github_token}"
+
+        async with self.session.get(url, headers=headers) as response:
+            return await response.json()
 
     async def check_commits(self, repo_channels):
         updates = []
+
         for repo in repo_channels:
             url = f"https://api.github.com/repos/{repo}/commits"
-            async with self.session.get(url, headers=self.headers) as resp:
-                if resp.status != 200:
-                    print(f"GitHub API error {resp.status} for {url}")
-                    continue
-                data = await resp.json()
-                if not data:
-                    continue
-                latest = data[0]
-                sha = latest["sha"]
-                if repo not in self.last_commit_shas or self.last_commit_shas[repo] != sha:
-                    self.last_commit_shas[repo] = sha
+            data = await self.fetch_json(url)
+
+            if isinstance(data, list) and data:
+                latest_commit = data[0]
+                sha = latest_commit["sha"]
+                cached_sha = self.cache.get(repo, {}).get("last_sha")
+
+                if sha != cached_sha:
+                    message = latest_commit["commit"]["message"]
+                    author = latest_commit["commit"]["author"]["name"]
+                    commit_url = latest_commit["html_url"]
+
+                    self.cache[repo] = {
+                        "last_sha": sha,
+                        "last_commit": message,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
+                    }
+
                     updates.append({
                         "repo": repo,
-                        "message": latest["commit"]["message"],
-                        "url": latest["html_url"],
-                        "author": latest["commit"]["author"]["name"]
+                        "message": message,
+                        "author": author,
+                        "url": commit_url
                     })
+
+        self.save_cache()
         return updates
 
-    async def check_followers(self):
+    async def check_followers(self, usernames=[]):
         updates = []
-        usernames = list({repo.split('/')[0] for repo in self.last_commit_shas.keys()})
-        for username in usernames:
-            url = f"https://api.github.com/users/{username}"
-            async with self.session.get(url, headers=self.headers) as resp:
-                if resp.status != 200:
-                    continue
-                data = await resp.json()
-                followers = data.get("followers", 0)
-                if username not in self.last_followers or self.last_followers[username] != followers:
-                    self.last_followers[username] = followers
+
+        if "profiles" not in self.cache:
+            self.cache["profiles"] = {}
+
+        for user in usernames:
+            url = f"https://api.github.com/users/{user}"
+            data = await self.fetch_json(url)
+
+            if "followers" in data:
+                followers = data["followers"]
+                cached = self.cache["profiles"].get(user, {}).get("followers")
+
+                if cached != followers:
+                    self.cache["profiles"][user] = {
+                        "followers": followers
+                    }
                     updates.append({
-                        "user": username,
+                        "user": user,
                         "followers": followers
                     })
+
+        self.save_cache()
         return updates

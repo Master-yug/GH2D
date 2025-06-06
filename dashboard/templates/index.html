@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub to Discord Monitor Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta http-equiv="refresh" content="30">
+</head>
+<body>
+    <h1>📊 GitHub to Discord Dashboard (Read-Only)</h1>
+    <p><small>🔄 Auto-refreshing every 30 seconds</small></p>
+
+    <h2>📝 Monitored Repositories</h2>
+    <ul>
+        {% if repos %}
+            {% for repo, channel_id in repos.items() %}
+            <li>
+                <strong>{{ repo }}</strong> ➝ Channel ID: <code>{{ channel_id }}</code><br>
+                {% set data = monitor_data.get(repo) %}
+                {% if data %}
+                    <strong>Last Commit:</strong> {{ data['last_commit'][:100] }}...<br>
+                    <strong>Updated:</strong> {{ data['timestamp'] }}
+                {% else %}
+                    <em>No commit data yet.</em>
+                {% endif %}
+            </li>
+            {% endfor %}
+        {% else %}
+            <li><em>No repositories configured.</em></li>
+        {% endif %}
+    </ul>
+
+    <h2>👥 GitHub Profiles</h2>
+    <ul>
+        {% for user, stats in monitor_data.get("profiles", {}).items() %}
+        <li>
+            <strong>{{ user }}</strong> ➝ Followers: {{ stats.followers }}
+        </li>
+        {% else %}
+        <li><em>No profiles monitored.</em></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
